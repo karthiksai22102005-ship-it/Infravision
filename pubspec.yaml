@@ -1,0 +1,57 @@
+name: infravision
+description: >
+  InfraVision Level 1 — a real-time, fully local computer-vision foundation
+  built with Flutter. Camera -> Frame Sampling -> Local Model -> Detection
+  -> Tracking -> Overlay -> Performance Monitoring.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Local Windows webcam plugin (Media Foundation)
+  infravision_camera:
+    path: packages/infravision_camera
+
+  # Local, on-device inference (no cloud, no API keys)
+  tflite_flutter: ^0.11.0
+
+  # Image manipulation for preprocessing (resize/rotate/format convert)
+  image: ^4.2.0
+
+  # Settings persistence (local only)
+  shared_preferences: ^2.2.3
+
+  # Small utility for permission requests
+  permission_handler: ^11.3.1
+
+  cupertino_icons: ^1.0.8
+  file_picker: ^12.0.0
+  file_picker_platform_interface: ^3.0.1
+  crypto: ^3.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+  windows:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    icon_size: 48
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/models/
+    - assets/icon/

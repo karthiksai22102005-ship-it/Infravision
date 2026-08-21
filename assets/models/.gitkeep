@@ -1,0 +1,3 @@
+Real TFLite model (yolov5n.tflite) and labels.txt will be added here in a
+later session (Day 3: Vision module). Kept out of pubspec asset references
+for now so Day 1's CI build succeeds without a missing-asset error.

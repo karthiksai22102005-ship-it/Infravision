@@ -1,0 +1,14 @@
+path: C:\Users\Dell\OneDrive\Desktop\Final Year project\infravision\dataset_infrastructure
+train: train/images
+val: val/images
+nc: 9
+names:
+  0: pothole
+  1: crocodile_crack
+  2: concrete_damage
+  3: open_manhole
+  4: person
+  5: laptop
+  6: phone
+  7: book
+  8: vehicle
