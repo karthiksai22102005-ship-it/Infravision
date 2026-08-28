@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/app_theme.dart';
-import '../presentation/shell/app_shell.dart';
+import '../presentation/portals/portal_selector_screen.dart';
 
 /// Root widget of InfraVision Enterprise Workstation.
 class InfraVisionApp extends StatelessWidget {
@@ -12,7 +12,7 @@ class InfraVisionApp extends StatelessWidget {
       title: 'InfraVision AI Workstation',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.buildTheme(),
-      home: const AppShell(),
+      home: const PortalSelectorScreen(),
     );
   }
 }

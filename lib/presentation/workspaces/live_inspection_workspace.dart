@@ -260,14 +260,15 @@ class _LiveInspectionWorkspaceState extends State<LiveInspectionWorkspace> {
               const SizedBox(width: 10),
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Live Vision & Defect Inspection Workstation',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
                   ),
                   Text(
                     'YOLOv5 Multi-Model Detection • Hardware DirectShow Stream',
-                    style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                    style: TextStyle(fontSize: 10, color: AppTheme.textSecondary),
                   ),
                 ],
               ),

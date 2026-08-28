@@ -15,7 +15,7 @@
 #include <mfreadwrite.h>
 #include <mferror.h>
 #include <windows.h>
-#include <wincodec.h>
+#include <wincodec.h>/*  */
 #include <wrl/client.h>
 
 #include <atomic>

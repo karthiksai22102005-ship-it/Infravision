@@ -106,14 +106,14 @@ class _AppHeaderState extends State<AppHeader> {
             ],
           ),
 
-          const SizedBox(width: 16),
+          const SizedBox(width: 8),
           Container(width: 1, height: 20, color: const Color(0xFF1E293B)),
-          const SizedBox(width: 14),
+          const SizedBox(width: 8),
 
           // Campus Zone Dropdown Selector
           Container(
-            constraints: const BoxConstraints(maxWidth: 170),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            constraints: const BoxConstraints(maxWidth: 130),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: const Color(0xFF131D31),
               borderRadius: BorderRadius.circular(8),
@@ -125,8 +125,8 @@ class _AppHeaderState extends State<AppHeader> {
               dropdownColor: const Color(0xFF131D31),
               isDense: true,
               isExpanded: true,
-              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.cyan, size: 17),
+              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.cyan, size: 16),
               items: _campusZones
                   .map(
                     (zone) => DropdownMenuItem(
@@ -192,6 +192,17 @@ class _AppHeaderState extends State<AppHeader> {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
             onPressed: () {},
+          ),
+
+          const SizedBox(width: 10),
+
+          // Switch Portal Button
+          IconButton(
+            icon: const Icon(Icons.logout_rounded, color: AppTheme.textSecondary, size: 19),
+            tooltip: 'Switch Operational Portal',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: () => Navigator.pop(context),
           ),
 
           const SizedBox(width: 10),
