@@ -91,7 +91,7 @@ class PortalSelectorScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Autonomous Civil Asset Management Platform',
+                                'Autonomous Physical Issue Intelligence Platform',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -122,14 +122,14 @@ class PortalSelectorScreen extends StatelessWidget {
                         crossAxisCount: isMobile ? 1 : 2,
                         crossAxisSpacing: 24,
                         mainAxisSpacing: 24,
-                        childAspectRatio: isMobile ? 1.5 : 1.35,
+                        childAspectRatio: isMobile ? 1.45 : 1.25,
                         children: [
                           _RoleCard(
-                            title: 'Citizen Reporter Portal',
-                            subtitle: 'Public Defect Submission & Tracking',
-                            description: 'Instantly snap civil hazards, track repair lifecycle status, check nearby reports, and verify fixed issues.',
+                            title: 'Observation Portal',
+                            subtitle: 'Multi-Source Defect Intake & Observation Stream',
+                            description: 'Submit or capture real-world observations via photos, videos, descriptions, and GPS directly into the central Observation → Issue Intelligence pipeline.',
                             icon: Icons.record_voice_over_rounded,
-                            badge: '2-TAP QUICK REPORT',
+                            badge: 'OBSERVATION STREAM',
                             color: AppTheme.cyan,
                             onTap: () {
                               Navigator.push(
@@ -141,11 +141,11 @@ class PortalSelectorScreen extends StatelessWidget {
                             },
                           ),
                           _RoleCard(
-                            title: 'Field Inspector Portal',
-                            subtitle: 'On-Device Mobile Vision Sweep',
-                            description: 'Perform real-time road sweeps with camera overlays, execute batch video tracking, and manage offline sync queue.',
+                            title: 'Field Intelligence Portal',
+                            subtitle: 'On-Device Edge Vision & Sweep Engine',
+                            description: 'Perform real-time computer vision sweeps with live AI overlays, execute batch video tracking, capture evidence, and manage offline sync queue.',
                             icon: Icons.center_focus_strong_rounded,
-                            badge: 'LIVE YOLO OVERLAY',
+                            badge: 'LIVE YOLO SWEEP',
                             color: AppTheme.purple,
                             onTap: () {
                               Navigator.push(
@@ -157,11 +157,11 @@ class PortalSelectorScreen extends StatelessWidget {
                             },
                           ),
                           _RoleCard(
-                            title: 'Contractor Crew Portal',
-                            subtitle: 'Field Repairs & SLA Dispatch',
-                            description: 'Access assigned work orders, view before-photo details, capture guided after-photo comparisons, and log materials.',
+                            title: 'Resolution Operations Portal',
+                            subtitle: 'Work Execution & SLA Resolution Dispatch',
+                            description: 'Access assigned work orders, view initial defect evidence, capture guided before/after resolution proof, and log materials for physical issue resolution.',
                             icon: Icons.engineering_rounded,
-                            badge: 'GHOST CAM OVERLAY',
+                            badge: 'RESOLUTION CREW',
                             color: AppTheme.warning,
                             onTap: () {
                               Navigator.push(
@@ -173,9 +173,9 @@ class PortalSelectorScreen extends StatelessWidget {
                             },
                           ),
                           _RoleCard(
-                            title: 'Municipal Supervisor Portal',
-                            subtitle: 'Central Command & AI Verification',
-                            description: 'Audit full reports, manage datasets, verify borderline fixes via split-pane compare, and view system health metrics.',
+                            title: 'Command & Verification Portal',
+                            subtitle: 'Operations Command & Multi-Factor Verification',
+                            description: 'Audit physical issue lifecycle, manage correlation queues, verify resolution attempts via split-pane comparison, and monitor systemic operational health.',
                             icon: Icons.dashboard_customize_rounded,
                             badge: 'COMMAND CENTER',
                             color: AppTheme.primary,
@@ -206,7 +206,7 @@ class PortalSelectorScreen extends StatelessWidget {
                             Icon(Icons.shield_rounded, color: AppTheme.success, size: 14),
                             SizedBox(width: 8),
                             Text(
-                              'ISO-55000 / ASTM D6433 Compliance Verification Framework',
+                              'ISO-55000 / ASTM Asset Lifecycle Intelligence Framework',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
@@ -344,9 +344,9 @@ class _RoleCardState extends State<_RoleCard> {
                 style: const TextStyle(
                   fontSize: 11,
                   color: AppTheme.textSecondary,
-                  height: 1.5,
+                  height: 1.4,
                 ),
-                maxLines: 3,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ],

@@ -22,10 +22,10 @@ void main() {
 
       expect(find.byType(PortalSelectorScreen), findsOneWidget);
       expect(find.text('Select Your Operational Role Portal'), findsOneWidget);
-      expect(find.text('Citizen Reporter Portal'), findsOneWidget);
-      expect(find.text('Field Inspector Portal'), findsOneWidget);
-      expect(find.text('Contractor Crew Portal'), findsOneWidget);
-      expect(find.text('Municipal Supervisor Portal'), findsOneWidget);
+      expect(find.text('Observation Portal'), findsOneWidget);
+      expect(find.text('Field Intelligence Portal'), findsOneWidget);
+      expect(find.text('Resolution Operations Portal'), findsOneWidget);
+      expect(find.text('Command & Verification Portal'), findsOneWidget);
     });
 
     testWidgets('CitizenPortal renders 4 bottom tabs and quick report form', (tester) async {
@@ -36,7 +36,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Citizen Reporter Portal'), findsOneWidget);
+      expect(find.text('Observation Portal'), findsOneWidget);
       expect(find.text('Quick Report'), findsOneWidget);
       expect(find.text('My Reports'), findsOneWidget);
       expect(find.text('Nearby Issues'), findsOneWidget);
@@ -71,13 +71,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Field Inspector Portal'), findsOneWidget);
+      expect(find.text('Field Intelligence Portal'), findsOneWidget);
       expect(find.text('Live CV Sweep'), findsOneWidget);
       expect(find.text('Batch Route'), findsOneWidget);
       expect(find.text('Offline Queue'), findsOneWidget);
       expect(find.text('Checklist'), findsOneWidget);
 
-      expect(find.text('Capture & Log Defect'), findsOneWidget);
+      expect(find.text('Capture & Ingest Observation'), findsOneWidget);
     });
 
     testWidgets('CrewPortal renders assigned work orders and action buttons', (tester) async {
@@ -88,7 +88,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Contractor Crew Portal'), findsOneWidget);
+      expect(find.text('Resolution Operations Portal'), findsOneWidget);
       expect(find.text('View Before-Photo'), findsWidgets);
       expect(find.text('Mark Fixed'), findsWidgets);
     });

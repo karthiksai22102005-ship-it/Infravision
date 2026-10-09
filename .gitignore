@@ -18,6 +18,7 @@ android/app/release
 *.jks
 *.keystore
 key.properties
+*.apk
 
 # Windows Flutter
 windows/flutter/ephemeral/

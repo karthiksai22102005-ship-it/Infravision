@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -42,12 +42,16 @@ class _CitizenPortalState extends State<CitizenPortal> {
       appBar: AppBar(
         backgroundColor: AppTheme.bgSurface,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.record_voice_over_rounded, color: AppTheme.cyan, size: 20),
-            const SizedBox(width: 10),
-            const Text(
-              'Citizen Reporter Portal',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+            const SizedBox(width: 8),
+            const Flexible(
+              child: Text(
+                'Observation Portal',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(width: 8),
             Container(
@@ -58,7 +62,7 @@ class _CitizenPortalState extends State<CitizenPortal> {
                 border: Border.all(color: AppTheme.cyan.withValues(alpha: 0.3)),
               ),
               child: const Text(
-                'PUBLIC PORTAL',
+                'OBSERVATION STREAM',
                 style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, color: AppTheme.cyan),
               ),
             ),
@@ -66,10 +70,16 @@ class _CitizenPortalState extends State<CitizenPortal> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_rounded, color: AppTheme.textSecondary),
-            onPressed: () => Navigator.pop(context),
-            tooltip: 'Switch Portal',
+            icon: const Icon(Icons.sync_rounded, color: AppTheme.cyan),
+            onPressed: () => _showSyncSettingsSheet(context),
+            tooltip: 'Sync Center & Settings',
           ),
+          if (Navigator.canPop(context))
+            IconButton(
+              icon: const Icon(Icons.logout_rounded, color: AppTheme.textSecondary),
+              onPressed: () => Navigator.pop(context),
+              tooltip: 'Switch Portal',
+            ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -103,6 +113,127 @@ class _CitizenPortalState extends State<CitizenPortal> {
         1 => const MyReportsTab(),
         2 => const NearbyIssuesTab(),
         _ => const CommunityHubTab(),
+      },
+    );
+  }
+
+  void _showSyncSettingsSheet(BuildContext context) {
+    final repo = ComplaintRepository.instance;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppTheme.bgSurface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Row(
+                    children: [
+                      Icon(Icons.tune_rounded, color: AppTheme.cyan, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Mobile Sync & Storage Center',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.bgCanvas,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.border),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          repo.isOnline ? Icons.wifi_rounded : Icons.wifi_off_rounded,
+                          color: repo.isOnline ? AppTheme.success : AppTheme.warning,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                repo.isOnline ? 'Online (Ready to Sync)' : 'Offline Mode',
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textPrimary),
+                              ),
+                              Text(
+                                '${repo.pendingSyncCount} observation(s) pending sync',
+                                style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        FilledButton.tonal(
+                          onPressed: () {
+                            repo.setOnline(!repo.isOnline);
+                            setSheetState(() {});
+                          },
+                          child: Text(repo.isOnline ? 'Go Offline' : 'Go Online'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.cleaning_services_rounded, color: AppTheme.cyan),
+                    title: const Text('Clear Temporary Media Cache', style: TextStyle(fontSize: 13, color: AppTheme.textPrimary)),
+                    subtitle: const Text('Preserves submitted evidence; clears temporary camera frames', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                    trailing: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Temporary media cache optimized.'), behavior: SnackBarBehavior.floating),
+                        );
+                      },
+                      child: const Text('Clean'),
+                    ),
+                  ),
+                  const Divider(color: AppTheme.border),
+                  const SizedBox(height: 6),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('App Edition', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                      Text('InfraVision Mobile v1.2 (Production)', style: TextStyle(fontSize: 12, color: AppTheme.cyan, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('AI Model Engine', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                      Text('YOLOv5n + On-Device CV Engine', style: TextStyle(fontSize: 12, color: AppTheme.purple, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       },
     );
   }

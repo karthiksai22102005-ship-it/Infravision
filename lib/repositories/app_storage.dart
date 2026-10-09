@@ -7,6 +7,8 @@ import '../models/complaint_item.dart';
 import '../models/defect_entity.dart';
 import '../models/evidence_item.dart';
 import '../models/monitoring_event.dart';
+import '../intelligence/issue_intelligence_engine.dart';
+import '../field/field_orchestrator.dart';
 import 'authority_bridge_service.dart';
 
 /// Central Local-First Storage & Repository Manager for InfraVision.
@@ -49,6 +51,17 @@ class AppStorage extends ChangeNotifier {
     // synced citizen report is absorbed even before portals are opened.
     AuthorityBridgeService.instance.registerPortalSink(absorbCitizenUpload);
 
+        // Prime the domain-independent ISSUE INTELLIGENCE ENGINE — it subscribes
+    // to the shared complaint event bus and correlates every portal input
+    // into persistent PhysicalIssues automatically.
+    await IssueIntelligenceEngine.instance.initialize();
+
+    // Prime the FIELD INTELLIGENCE orchestrator: registers all source
+    // adapters, boots the processing pipeline and the IoT layer so Live CV
+    // Sweep, Batch Route, Offline Queue and Checklist feed the same
+    // observation -> correlation -> lifecycle pipeline.
+    await FieldOrchestrator.instance.initialize();
+
     try {
       final baseDir = _getBaseDirectory();
       _evidenceImagesDir = Directory('${baseDir.path}/evidence/images');
@@ -82,7 +95,17 @@ class AppStorage extends ChangeNotifier {
           'C:/Users/Dell/AppData/Local';
       return Directory('$localAppData/InfraVision');
     }
-    return Directory.systemTemp.createTempSync('infravision_');
+    // Android & other mobile platforms: use persistent app documents dir
+    final appDir = Directory('${Directory.systemTemp.parent.path}/app_flutter/InfraVision');
+    if (!appDir.existsSync()) {
+      try {
+        appDir.createSync(recursive: true);
+        return appDir;
+      } catch (_) {}
+    } else {
+      return appDir;
+    }
+    return Directory('${Directory.systemTemp.path}/infravision_data');
   }
 
   Future<void> _loadPersistedData() async {
@@ -114,6 +137,13 @@ class AppStorage extends ChangeNotifier {
         final List<dynamic> list = jsonDecode(content) as List<dynamic>;
         _casesList.clear();
         _casesList.addAll(list.map((e) => CaseItem.fromJson(e as Map<String, dynamic>)));
+
+        // If cases contain repetitive identical titles from older runs, refresh with rich seed
+        final uniqueCaseTitles = _casesList.map((c) => c.title).toSet();
+        if (_casesList.length > 2 && uniqueCaseTitles.length <= 1) {
+          _casesList.clear();
+          _bootstrapDefaultSampleData();
+        }
       } catch (_) {}
     }
 
@@ -314,6 +344,34 @@ class AppStorage extends ChangeNotifier {
     );
 
     final case3 = CaseItem(
+      id: 'CASE-2026-103',
+      complaintId: c4.id,
+      title: 'Culvert Throat Debris Clearance & Sump Desilting',
+      department: 'Municipal Drainage Division',
+      assignedTeam: 'Hydrology Rapid Response #1',
+      status: CaseStatus.assigned,
+      priority: 'Critical (24h)',
+      beforeEvidencePath: '',
+      createdAt: now.subtract(const Duration(hours: 1)),
+      slaDeadline: now.add(const Duration(hours: 23)),
+      assignedEngineer: 'Er. A. K. Sharma',
+    );
+
+    final case4 = CaseItem(
+      id: 'CASE-2026-105',
+      complaintId: c5.id,
+      title: 'West Perimeter Highway Cold-Milling & Asphalt Overlay',
+      department: 'Public Works Department (PWD)',
+      assignedTeam: 'Pavement Maintenance Squad 4',
+      status: CaseStatus.inProgress,
+      priority: 'High (48h)',
+      beforeEvidencePath: '',
+      createdAt: now.subtract(const Duration(hours: 6)),
+      slaDeadline: now.add(const Duration(hours: 42)),
+      assignedEngineer: 'Er. Sandeep Verma',
+    );
+
+    final case5 = CaseItem(
       id: 'CASE-2026-106',
       complaintId: c6.id,
       title: 'Manhole Chamber Reconstruction & Polymer Leveling',
@@ -327,7 +385,7 @@ class AppStorage extends ChangeNotifier {
       assignedEngineer: 'Er. Sandeep Verma',
     );
 
-    _casesList.addAll([case1, case2, case3]);
+    _casesList.addAll([case1, case2, case3, case4, case5]);
 
     _eventsList.addAll([
       MonitoringEvent(

@@ -67,6 +67,11 @@ class CameraService extends ChangeNotifier {
 
   /// Enumerate available camera devices.
   Future<List<CameraDevice>> enumerateCameras() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.windows) {
+      _devices = const [];
+      notifyListeners();
+      return _devices;
+    }
     try {
       _devices = await InfravisionCamera.availableCameras();
       _lastError = null;

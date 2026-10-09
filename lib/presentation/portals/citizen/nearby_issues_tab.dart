@@ -1,10 +1,13 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../config/app_theme.dart';
 import '../../../citizen/models/complaint.dart';
 import '../../../citizen/models/complaint_evidence.dart';
 import '../../../citizen/repository/complaint_repository.dart';
+import '../../../core/gps_service.dart';
 import 'complaint_detail_view.dart';
 
 /// TAB 3 — Nearby Issues: live issue discovery, confirmation, following and
@@ -18,6 +21,11 @@ class NearbyIssuesTab extends StatefulWidget {
 
 class _NearbyIssuesTabState extends State<NearbyIssuesTab> {
   bool _mapView = false;
+  final MapController _mapController = MapController();
+  late LatLng _devicePos;
+  double _gpsAccuracy = 0;
+  bool _gpsLocked = false;
+  Complaint? _selectedIssue;
 
   String? _categoryFilter;
   String? _statusFilter;
@@ -82,8 +90,40 @@ class _NearbyIssuesTabState extends State<NearbyIssuesTab> {
     return list;
   }
 
-  final double _anchorLat = 17.3850;
-  final double _anchorLon = 78.4867;
+  /// Live device GPS (falls back to the city-centre anchor when denied).
+  double get _anchorLat => _devicePos.latitude;
+  double get _anchorLon => _devicePos.longitude;
+
+  @override
+  void initState() {
+    super.initState();
+    final current = GpsService.instance.currentPosition;
+    if (current != null) {
+      _devicePos = LatLng(current.latitude, current.longitude);
+      _gpsAccuracy = current.accuracy;
+      _gpsLocked = true;
+    } else {
+      _devicePos = const LatLng(0.0, 0.0);
+    }
+    _refreshGps();
+  }
+
+  /// Verifies the citizen's real position so map distances are provable.
+  Future<void> _refreshGps() async {
+    final pos = await GpsService.instance.acquireBestFix();
+    if (!mounted || pos == null) return;
+    setState(() {
+      _devicePos = LatLng(pos.latitude, pos.longitude);
+      _gpsAccuracy = pos.accuracy;
+      _gpsLocked = true;
+    });
+    if (_mapView) {
+      try {
+        _mapController.move(_devicePos, 16);
+      } catch (_) {}
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = ComplaintRepository.instance;
@@ -193,48 +233,198 @@ class _NearbyIssuesTabState extends State<NearbyIssuesTab> {
 
   Widget _mapViewWidget(List<Complaint> items) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(color: AppTheme.bgSurface, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.border)),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      decoration: BoxDecoration(
+          color: AppTheme.bgSurface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppTheme.border)),
+      clipBehavior: Clip.antiAlias,
       child: Stack(
-        alignment: Alignment.center,
         children: [
-          CustomPaint(size: Size.infinite, painter: _GridMapPainter()),
-          const Positioned(
-            left: 150, top: 120,
-            child: Icon(Icons.my_location_rounded, color: AppTheme.cyan, size: 22),
-          ),
-          for (final c in items)
-            Positioned(
-              left: 60.0 + (c.id.hashCode % 160),
-              top: 60.0 + (c.id.hashCode % 220),
-              child: Tooltip(
-                message: '${c.category} • ${c.confirmationCount} confirmations',
-                child: GestureDetector(
-                  onTap: () => _openDetail(c),
+          // ── Real interactive OSM map with verified GPS proof ──
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _devicePos,
+              initialZoom: 15,
+              minZoom: 3,
+              maxZoom: 19,
+              onTap: (_, __) => setState(() => _selectedIssue = null),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.infravision.app',
+                maxZoom: 19,
+              ),
+              // GPS accuracy halo around the citizen's verified position.
+              if (_gpsLocked)
+                CircleLayer(circles: [
+                  CircleMarker(
+                    point: _devicePos,
+                    radius: _gpsAccuracy > 0 ? _gpsAccuracy : 20,
+                    useRadiusInMeter: true,
+                    color: AppTheme.cyan.withValues(alpha: 0.10),
+                    borderColor: AppTheme.cyan.withValues(alpha: 0.35),
+                    borderStrokeWidth: 1.5,
+                  ),
+                ]),
+              // Search-radius ring matching the active distance filter.
+              CircleLayer(circles: [
+                CircleMarker(
+                  point: _devicePos,
+                  radius: _maxDistanceKm * 1000,
+                  useRadiusInMeter: true,
+                  color: AppTheme.purple.withValues(alpha: 0.05),
+                  borderColor: AppTheme.purple.withValues(alpha: 0.30),
+                  borderStrokeWidth: 1.2,
+                ),
+              ]),
+              MarkerLayer(markers: [
+                // Citizen's own verified GPS location.
+                Marker(
+                  point: _devicePos,
+                  width: 40,
+                  height: 40,
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: _priorityColor(c).withValues(alpha: 0.2),
+                      color: AppTheme.cyan,
                       shape: BoxShape.circle,
-                      border: Border.all(color: _priorityColor(c), width: 2),
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                            color: AppTheme.cyan.withValues(alpha: 0.55),
+                            blurRadius: 10),
+                      ],
                     ),
-                    child: Icon(Icons.warning_rounded, color: _priorityColor(c), size: 14),
+                    child: const Icon(Icons.person_pin_rounded,
+                        color: Colors.black, size: 18),
                   ),
                 ),
-              ),
-            ),
+                // Issue pins — priority-coloured, GPS-distance-labelled.
+                for (final c in items) _issueMarker(c),
+              ]),
+            ],
+          ),
+          // ── Locate-me / fit FABs ──
           Positioned(
-            left: 10, top: 10,
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(8)),
-              child: const Text('Colored dots = issue priority', style: TextStyle(fontSize: 9, color: Colors.white)),
+            right: 10,
+            bottom: _selectedIssue == null ? 12 : 190,
+            child: Column(
+              children: [
+                _mapFab(Icons.gps_fixed_rounded, 'Re-center on my GPS',
+                    () => _refreshGps()),
+                const SizedBox(height: 8),
+                _mapFab(Icons.layers_rounded, 'Zoom to selected issue',
+                    _zoomToSelected),
+              ],
             ),
           ),
+          // ── Legend ──
+          Positioned(
+            left: 10,
+            top: 10,
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(8)),
+              child: Text(
+                'You = cyan pin • issues by priority • ring = '
+                '${_maxDistanceKm.toStringAsFixed(1)} km search radius',
+                style: const TextStyle(fontSize: 9, color: Colors.white),
+              ),
+            ),
+          ),
+          // ── Selected-issue action sheet (confirm / follow / evidence) ──
+          if (_selectedIssue != null)
+            Positioned(
+              left: 10,
+              right: 10,
+              bottom: 10,
+              child: _selectedIssueCard(_selectedIssue!),
+            ),
         ],
       ),
     );
   }
+
+  void _zoomToSelected() {
+    if (_selectedIssue == null) return;
+    try {
+      _mapController.move(
+          LatLng(_selectedIssue!.latitude, _selectedIssue!.longitude), 17);
+    } catch (_) {}
+  }
+
+  Widget _mapFab(IconData icon, String tip, VoidCallback onTap) => Tooltip(
+        message: tip,
+        child: Material(
+          color: AppTheme.bgSurface,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppTheme.border)),
+              child: Icon(icon, color: AppTheme.cyan, size: 20),
+            ),
+          ),
+        ),
+      );
+
+  Marker _issueMarker(Complaint c) {
+    final selected = _selectedIssue?.id == c.id;
+    return Marker(
+      point: LatLng(c.latitude, c.longitude),
+      width: 46,
+      height: 56,
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedIssue = c),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: _priorityColor(c).withValues(alpha: 0.25),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? Colors.white : _priorityColor(c),
+                  width: selected ? 2.5 : 2,
+                ),
+              ),
+              child: Icon(
+                c.isOpen ? Icons.warning_rounded : Icons.verified_rounded,
+                color: _priorityColor(c),
+                size: 15,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.75),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                _distanceLabel(c.distanceTo(_anchorLat, _anchorLon)),
+                style: const TextStyle(
+                    fontSize: 8,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _card(Complaint c) {
     final repo = ComplaintRepository.instance;
     final isFollowed = repo.followedIds.contains(c.id);
@@ -314,23 +504,122 @@ class _NearbyIssuesTabState extends State<NearbyIssuesTab> {
   String _fmt(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')} '
       '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
-}
 
-class _GridMapPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final gridPaint = Paint()
-      ..color = AppTheme.border.withValues(alpha: 0.3)
-      ..strokeWidth = 1.0;
-    const step = 40.0;
-    for (double x = 0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-    for (double y = 0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
-    }
+  /// Bottom card over the map proving where the issue is relative to the
+  /// citizen's verified GPS position, with duplicate-prevention actions.
+  Widget _selectedIssueCard(Complaint c) {
+    final repo = ComplaintRepository.instance;
+    final isFollowed = repo.followedIds.contains(c.id);
+    final dist = c.distanceTo(_anchorLat, _anchorLon);
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppTheme.bgSurface.withValues(alpha: 0.97),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _priorityColor(c).withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Expanded(
+              child: Text(c.category,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary)),
+            ),
+            InkWell(
+              onTap: () => setState(() => _selectedIssue = null),
+              child: const Icon(Icons.close_rounded,
+                  size: 16, color: AppTheme.textMuted),
+            ),
+          ]),
+          const SizedBox(height: 2),
+          // ── Location proof: verified distance from the citizen's GPS ──
+          Row(children: [
+            Icon(Icons.my_location_rounded,
+                size: 11,
+                color: _gpsLocked ? AppTheme.cyan : AppTheme.textMuted),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                '${_distanceLabel(dist)} from your verified GPS'
+                '${_gpsLocked ? ' (±${_gpsAccuracy.round()} m)' : ' (approx. — GPS unavailable)'}'
+                ' • ${c.address}',
+                style: TextStyle(
+                    fontSize: 10,
+                    color: AppTheme.cyan,
+                    fontStyle: _gpsLocked
+                        ? FontStyle.normal
+                        : FontStyle.italic),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 6),
+          Wrap(spacing: 6, runSpacing: 6, children: [
+            _chip(c.status.label, AppTheme.cyan),
+            _chip(c.priority.label, _priorityColor(c)),
+            _chip('${c.confirmationCount} confirm', AppTheme.warning),
+            _chip('${c.followerCount} follow', AppTheme.purple),
+          ]),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, children: [
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.success,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 6)),
+              onPressed: () {
+                repo.confirmIssue(c.id);
+                setState(() {});
+              },
+              icon: const Icon(Icons.verified_rounded, size: 14),
+              label: const Text('Confirm same issue',
+                  style: TextStyle(fontSize: 10)),
+            ),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.purple,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 6)),
+              onPressed: () {
+                repo.followIssue(c.id, follow: !isFollowed);
+                setState(() {});
+              },
+              icon: Icon(
+                  isFollowed
+                      ? Icons.notifications_off_rounded
+                      : Icons.notifications_rounded,
+                  size: 14),
+              label: Text(isFollowed ? 'Following' : 'Follow',
+                  style: const TextStyle(fontSize: 10)),
+            ),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.cyan,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 6)),
+              onPressed: () => _addEvidence(c),
+              icon: const Icon(Icons.add_photo_alternate_rounded, size: 14),
+              label: const Text('Add evidence',
+                  style: TextStyle(fontSize: 10)),
+            ),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.textPrimary,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 6)),
+              onPressed: () => _openDetail(c),
+              icon: const Icon(Icons.open_in_new_rounded, size: 14),
+              label:
+                  const Text('Details', style: TextStyle(fontSize: 10)),
+            ),
+          ]),
+        ],
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+

@@ -40,6 +40,7 @@ class ComplaintRepository extends ChangeNotifier {
   late final RealTimeComplaintService _realtime;
   Timer? _slaTimer;
   bool _ready = false;
+  Future<void>? _initializing;
 
   bool get isInitialized => _ready;
 
@@ -82,6 +83,22 @@ class ComplaintRepository extends ChangeNotifier {
 
   Future<void> initialize({bool seed = true}) async {
     if (_ready) return;
+    // The portal can be rebuilt while startup is still in progress.  Keep one
+    // shared initialization operation so local storage/services are created
+    // only once instead of reassigning the late-final dependencies.
+    final pending = _initializing;
+    if (pending != null) return pending;
+
+    final initialization = _initialize(seed: seed);
+    _initializing = initialization;
+    try {
+      await initialization;
+    } finally {
+      if (!_ready) _initializing = null;
+    }
+  }
+
+  Future<void> _initialize({required bool seed}) async {
     _local = LocalComplaintDataSource();
     _remote = RemoteComplaintDataSource();
     _sync = ComplaintSyncService(local: _local, remote: _remote);

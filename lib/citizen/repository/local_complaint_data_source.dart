@@ -28,6 +28,15 @@ class LocalComplaintDataSource {
           'C:/Users/Dell/AppData/Local';
       return Directory('$localAppData/InfraVision/citizen');
     }
+    final appDir = Directory('${Directory.systemTemp.parent.path}/app_flutter/InfraVision/citizen');
+    if (!appDir.existsSync()) {
+      try {
+        appDir.createSync(recursive: true);
+        return appDir;
+      } catch (_) {}
+    } else {
+      return appDir;
+    }
     return Directory('${Directory.systemTemp.path}/infravision_citizen');
   }
 

@@ -18,6 +18,7 @@ import '../workspaces/diagnostics_workspace.dart';
 import '../workspaces/evidence_workspace.dart';
 import '../workspaces/inspect_hub_workspace.dart';
 import '../workspaces/issues_hub_workspace.dart';
+import '../workspaces/issue_intelligence_workspace.dart';
 import '../workspaces/overview_workspace.dart';
 import '../workspaces/reports_workspace.dart';
 import '../workspaces/training_workspace.dart';
@@ -217,6 +218,9 @@ class _AppShellState extends State<AppShell> {
 
       case AppTab.workOrders:
         return const IssuesHubWorkspace();
+
+      case AppTab.issueIntelligence:
+        return const IssueIntelligenceWorkspace();
 
       case AppTab.verification:
         return const VerificationWorkspace();

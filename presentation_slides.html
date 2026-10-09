@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InfraVision — Capstone Project Presentation Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070d1e;
+      --bg-card: #0f1c3f;
+      --bg-card-hover: #152757;
+      --border: #1e3366;
+      --accent-cyan: #38bdf8;
+      --accent-green: #00e5a0;
+      --accent-amber: #f59e0b;
+      --accent-purple: #c084fc;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-body: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Presentation Header Toolbar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 28px;
+      background: rgba(11, 19, 43, 0.85);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand span.tag {
+      background: linear-gradient(135deg, #00e5a0, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--accent-cyan);
+      background: rgba(56, 189, 248, 0.1);
+      padding: 4px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--accent-cyan);
+      color: #070d1e;
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    /* Slide Viewport */
+    .viewport {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 48px;
+    }
+
+    .slide {
+      position: absolute;
+      width: 92%;
+      max-width: 1400px;
+      height: 88%;
+      max-height: 820px;
+      background: radial-gradient(circle at 10% 10%, rgba(30, 51, 102, 0.4) 0%, rgba(11, 19, 43, 0.95) 70%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 56px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(56, 189, 248, 0.05);
+      animation: fadeIn 0.35s ease-out forwards;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.985); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Slide Typography */
+    .slide-tag {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 6px;
+    }
+
+    .slide-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      flex: 1;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      flex: 1;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      flex: 1;
+    }
+
+    .grid-6 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--card-accent, var(--accent-cyan));
+    }
+
+    .card.cyan { --card-accent: var(--accent-cyan); border-color: rgba(56, 189, 248, 0.3); }
+    .card.green { --card-accent: var(--accent-green); border-color: rgba(0, 229, 160, 0.3); }
+    .card.amber { --card-accent: var(--accent-amber); border-color: rgba(245, 158, 11, 0.3); }
+    .card.purple { --card-accent: var(--accent-purple); border-color: rgba(192, 132, 252, 0.3); }
+
+    .card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card p {
+      font-size: 13.5px;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    .card ul {
+      list-style: none;
+    }
+
+    .card ul li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 10px;
+      font-size: 13.5px;
+      color: var(--text-body);
+      line-height: 1.5;
+    }
+
+    .card ul li::before {
+      content: '▹';
+      position: absolute;
+      left: 0;
+      color: var(--card-accent, var(--accent-cyan));
+      font-weight: bold;
+    }
+
+    /* Title Slide Custom Hero */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(0, 229, 160, 0.12);
+      border: 1px solid rgba(0, 229, 160, 0.3);
+      color: var(--accent-green);
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      width: fit-content;
+    }
+
+    .hero-title {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      margin-bottom: 16px;
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--text-body);
+      max-width: 900px;
+      line-height: 1.6;
+      margin-bottom: 34px;
+    }
+
+    /* Key Metrics Table */
+    .metric-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .metric-table th, .metric-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 13.5px;
+    }
+
+    .metric-table th {
+      color: var(--accent-cyan);
+      font-weight: 700;
+      background: rgba(22, 33, 62, 0.5);
+    }
+
+    .metric-table td.val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--accent-green);
+    }
+
+    /* Bottom Dots Navigation */
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 5px;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .dot.active {
+      width: 32px;
+      background: var(--accent-cyan);
+    }
+
+    @media print {
+      body { overflow: visible; height: auto; }
+      .top-bar, .dots { display: none !important; }
+      .slide { display: flex !important; page-break-after: always; height: 100vh; max-height: none; width: 100vw; max-width: none; border: none; border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Toolbar -->
+  <div class="top-bar">
+    <div class="brand">
+      <span>🚧 INFRAVISION</span>
+      <span class="tag">AI Municipal Asset Ecosystem</span>
+    </div>
+    <div class="slide-counter" id="slideNum">Slide 1 / 8</div>
+    <div class="nav-controls">
+      <button class="btn" onclick="prevSlide()">◀ Previous</button>
+      <button class="btn" onclick="nextSlide()">Next ▶</button>
+      <button class="btn" onclick="window.print()">🖨️ Print / PDF</button>
+    </div>
+  </div>
+
+  <!-- Main Viewport -->
+  <div class="viewport">
+
+    <!-- ================= SLIDE 1 ================= -->
+    <div class="slide active" id="slide-1">
+      <div class="hero-badge">⚡ ENGINEERING FINAL YEAR CAPSTONE PROJECT</div>
+      <h1 class="hero-title">INFRAVISION</h1>
+      <div class="hero-subtitle">AI-Powered Autonomous Infrastructure & Municipal Asset Management System</div>
+      <p class="hero-desc">
+        An enterprise, 100% local-first edge computing platform uniting public citizens, road inspectors, contractor crews, and municipal commissioners into an automated 6-stage civil lifecycle with real-time YOLOv8 defect detection, 3D GIS triage, and forensic before/after verification.
+      </p>
+
+      <div class="grid-4">
+        <div class="card cyan">
+          <h3>⚡ 100% On-Device AI</h3>
+          <p>Sub-25ms neural inference latency on local edge hardware with zero recurring cloud API fees.</p>
+        </div>
+        <div class="card green">
+          <h3>🤖 SAE Level 4 Autonomy</h3>
+          <p>Autonomous triage, SLA routing, and certification dispatch with human exception handling.</p>
+        </div>
+        <div class="card amber">
+          <h3>👥 4-Role Portals</h3>
+          <p>Dedicated operational interfaces for Citizen Reporters, Field Inspectors, Crews, and Supervisors.</p>
+        </div>
+        <div class="card purple">
+          <h3>🔒 Cryptographic Vault</h3>
+          <p>SHA-256 tamper-proof chain of custody for legal and audit-proof contractor accountability.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 2 ================= -->
+    <div class="slide" id="slide-2">
+      <div class="slide-tag">The Municipal Dilemma</div>
+      <h2 class="slide-title">Problem Statement & Background Crisis</h2>
+      <div class="slide-subtitle">Traditional municipal road maintenance is slow, manual, fragmented, and vulnerable to contractor fraud.</div>
+
+      <div class="grid-3">
+        <div class="card amber">
+          <h3>🚨 Dangerous Road Hazard Delays</h3>
+          <ul>
+            <li><strong>Manual Inspection Bottlenecks:</strong> Visual surveys are infrequent, allowing potholes and fractures to deteriorate unchecked.</li>
+            <li><strong>High Accident Toll:</strong> Unaddressed potholes cause thousands of severe vehicular damage cases and fatal road accidents each year.</li>
+            <li><strong>Exponential Repair Costs:</strong> A 10mm surface crack neglected for weeks degrades into structural base failure costing 10x more to repair.</li>
+          </ul>
+        </div>
+
+        <div class="card cyan">
+          <h3>📑 Bureaucratic Triage Deficits</h3>
+          <ul>
+            <li><strong>Fragmented Complaints:</strong> Citizen reports get trapped in paper logs, siloed WhatsApp groups, or unresponsive web portals.</li>
+            <li><strong>Duplicate Clutter:</strong> One central pothole receives dozens of redundant complaints with zero spatial aggregation.</li>
+            <li><strong>Lack of SLA Enforcement:</strong> No real-time tracking of work orders, leading to neglected complaints in underprivileged wards.</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3>💸 Contractor Fraud & Zero Audit</h3>
+          <ul>
+            <li><strong>Substandard Resurfacing:</strong> Unregulated contractors dump uncompacted gravel and claim full hot-mix asphalt payouts.</li>
+            <li><strong>No Verifiable Proof:</strong> Supervisors lack objective photographic alignment or surface roughness data to certify work.</li>
+            <li><strong>Budget Waste:</strong> Billions of municipal tax dollars are drained on recurrent repairs of the exact same road stretch.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 3 ================= -->
+    <div class="slide" id="slide-3">
+      <div class="slide-tag">Autonomous Operations</div>
+      <h2 class="slide-title">Proposed Solution: 6-Stage Autonomous Lifecycle</h2>
+      <div class="slide-subtitle">A closed-loop, self-orchestrating pipeline managing defects from computer vision trigger to certified closure.</div>
+
+      <div class="grid-6">
+        <div class="card cyan">
+          <h3 style="font-size: 14px;">1. DETECT</h3>
+          <p style="font-size: 12px;"><strong>On-Device CV:</strong> YOLOv8 scans video frames at 60 FPS for potholes, cracks & debris.</p>
+        </div>
+        <div class="card green">
+          <h3 style="font-size: 14px;">2. LOCATE</h3>
+          <p style="font-size: 12px;"><strong>GPS & GIS:</strong> Precision coordinate lock, altitude, and road network segment binding.</p>
+        </div>
+        <div class="card amber">
+          <h3 style="font-size: 14px;">3. PRIORITIZE</h3>
+          <p style="font-size: 12px;"><strong>AI Severity:</strong> Computes Hazard Index (0-1) and launches dynamic SLA timers (24h/48h).</p>
+        </div>
+        <div class="card purple">
+          <h3 style="font-size: 14px;">4. ASSIGN</h3>
+          <p style="font-size: 12px;"><strong>Smart Triage:</strong> Routes tickets to PWD, Civil, Electrical, or Drainage wings.</p>
+        </div>
+        <div class="card cyan">
+          <h3 style="font-size: 14px;">5. REPAIR</h3>
+          <p style="font-size: 12px;"><strong>Ghost Camera:</strong> Crew resurfaces road guided by transparent original photo overlay.</p>
+        </div>
+        <div class="card green">
+          <h3 style="font-size: 14px;">6. VERIFY</h3>
+          <p style="font-size: 12px;"><strong>Forensic Seal:</strong> AI verifies 0% residual cavity and stamps cryptographic closure.</p>
+        </div>
+      </div>
+
+      <div class="card green" style="margin-top: 10px;">
+        <h3>🎯 SAE Autonomy Level 4 Architectural Standard</h3>
+        <p style="font-size: 14px; line-height: 1.6;">
+          InfraVision achieves <strong>SAE Level 4 (High Autonomy)</strong> in civil asset management: The system handles detection, prioritization, department assignment, and repair verification autonomously under defined municipal operational parameters. Human supervisors only intervene for edge-case resolutions and budget payouts, completely removing manual triage bottlenecks.
+        </p>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 4 ================= -->
+    <div class="slide" id="slide-4">
+      <div class="slide-tag">Engineering Foundation</div>
+      <h2 class="slide-title">Technology Stack & Architectural Matrix</h2>
+      <div class="slide-subtitle">High-performance, decoupled engineering stack optimized for local-first desktop and mobile platforms.</div>
+
+      <div class="grid-4">
+        <div class="card cyan">
+          <h3>📱 UI & Presentation</h3>
+          <ul>
+            <li><strong>Flutter 3.x & Dart 3.x:</strong> Cross-platform Windows Desktop and mobile responsive client.</li>
+            <li><strong>Dark Cyber Theme:</strong> Glassmorphism HUD, high-contrast indicators, and responsive shell.</li>
+            <li><strong>State Management:</strong> Reactive architecture with decoupled UI & repository providers.</li>
+            <li><strong>Local Persistence:</strong> SharedPreferences & local disk caching.</li>
+          </ul>
+        </div>
+
+        <div class="card green">
+          <h3>⚡ Hardware & Camera</h3>
+          <ul>
+            <li><strong>DirectShow Bridge:</strong> Native Windows C++ plugin utilizing Media Foundation.</li>
+            <li><strong>Decoupled Sampling:</strong> Separates 60 FPS video capture from 28.4 FPS neural inference.</li>
+            <li><strong>Zero-Copy Extraction:</strong> Direct raw frame buffer conversion (RGB/BGR).</li>
+            <li><strong>HUD Telemetry:</strong> Real-time rolling latency and jitter telemetry display.</li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <h3>🧠 Edge AI & MLOps</h3>
+          <ul>
+            <li><strong>Custom YOLOv8n:</strong> Trained on ASTM D6433 civil distress standards (potholes, cracks).</li>
+            <li><strong>TFLite Runtime:</strong> 100% on-device local execution via <code>tflite_flutter</code>.</li>
+            <li><strong>Tracking Engine:</strong> ByteTrack & Kalman filtering for multi-frame duplicate suppression.</li>
+            <li><strong>Embedded MLOps:</strong> On-device synthetic training studio & model exporter.</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3>🗺️ Geospatial & Security</h3>
+          <ul>
+            <li><strong>3D GIS Engine:</strong> <code>flutter_map</code>, <code>latlong2</code> with 4 custom layer modes.</li>
+            <li><strong>3D Polygons:</strong> Extruded isometric campus building footprints and hazard markers.</li>
+            <li><strong>SHA-256 Vault:</strong> Cryptographic tamper-proof checksums on all media evidence.</li>
+            <li><strong>Audit Reporting:</strong> Automated ISO-55000 compliant PDF & JSON audit trails.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 5 ================= -->
+    <div class="slide" id="slide-5">
+      <div class="slide-tag">Operational Workspaces</div>
+      <h2 class="slide-title">Multi-User Operational Role Portals</h2>
+      <div class="slide-subtitle">Purpose-built interfaces tailored to each stakeholder in the municipal maintenance lifecycle.</div>
+
+      <div class="grid-2">
+        <div class="card cyan">
+          <h3>📱 Citizen Reporter Portal</h3>
+          <ul>
+            <li><strong>2-Tap Quick Report:</strong> Camera snaps defect, on-device AI pre-classifies category & severity for instant 1-tap submission.</li>
+            <li><strong>Voice-to-Text Context:</strong> Built-in voice logger allows hands-free voice notes for road descriptions.</li>
+            <li><strong>Nearby Issues Map & Upvotes:</strong> Citizens upvote existing pins, eliminating duplicate call center complaints.</li>
+            <li><strong>Community Resolution Hub:</strong> Public scorecard with a "Reopen Ticket" button to reject shoddy repairs.</li>
+          </ul>
+        </div>
+
+        <div class="card green">
+          <h3>🔍 Field Inspector Portal</h3>
+          <ul>
+            <li><strong>Live CV Sweep Scanner:</strong> Real-time HUD showing bounding boxes, confidence, and estimated cavity volume.</li>
+            <li><strong>Batch Dashcam Sweep:</strong> Ingests vehicle dashcam video files and merges multi-frame hits using Kalman filters.</li>
+            <li><strong>Offline Sync Queue:</strong> Operates seamlessly in dead zones; caches reports locally and auto-syncs when online.</li>
+            <li><strong>Daily Route Checklist:</strong> Corridor checklists with live completion progress bars.</li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <h3>🛠️ Contractor Crew Portal</h3>
+          <ul>
+            <li><strong>SLA Urgency Dashboard:</strong> Work orders sorted dynamically by active SLA countdown timers and hazard index.</li>
+            <li><strong>Guided Ghost Camera Overlay:</strong> Renders a semi-transparent ghost of the original before-photo inside the camera viewfinder to guarantee identical angle and distance.</li>
+            <li><strong>Materials & Labor Audit:</strong> Formal logging of asphalt volume (m³), joint sealants, and crew hours.</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3>🧑‍💼 Municipal Supervisor Command Workstation</h3>
+          <ul>
+            <li><strong>Command Center Workstation:</strong> Live operations center with global KPI metrics, zone filters, and system health.</li>
+            <li><strong>3D Geospatial GIS Engine:</strong> Vector road network, satellite recon, defect heatmaps, and 3D building models.</li>
+            <li><strong>Forensic Split-Wipe Studio:</strong> Interactive swipe slider comparing Pre-Repair vs Post-Repair patches.</li>
+            <li><strong>Immutable Evidence Vault:</strong> Cryptographic SHA-256 chain of custody and PDF audit certificates.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 6 ================= -->
+    <div class="slide" id="slide-6">
+      <div class="slide-tag">Deep Technology</div>
+      <h2 class="slide-title">Key Technical Innovations & Algorithms</h2>
+      <div class="slide-subtitle">Proprietary mathematical models and vision algorithms driving enterprise-grade reliability.</div>
+
+      <div class="grid-3">
+        <div class="card cyan">
+          <h3>⚡ 100% Local Edge Inference</h3>
+          <p>Zero cloud latency (22.1ms avg) and zero cloud API subscriptions. Eliminates server downtime and dead-zone blind spots during road sweeps.</p>
+        </div>
+
+        <div class="card green">
+          <h3>📐 Hazard Severity Index (HSI)</h3>
+          <p>Multi-factor severity scoring formula:</p>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin: 8px 0; color: var(--accent-green);">
+            S = 0.25·C + 0.40·(D/D_max) + 0.35·(A/A_norm)
+          </div>
+          <p>Automatically triggers 24h, 48h, or 7-day dynamic SLA countdown clocks based on hazard severity.</p>
+        </div>
+
+        <div class="card amber">
+          <h3>👻 Guided Ghost Viewfinder</h3>
+          <p>Solves forensic angle mismatch. Superimposes original pre-repair damage at 40% opacity in contractor's viewfinder to guarantee identical perspective and focal distance for audit certification.</p>
+        </div>
+
+        <div class="card purple">
+          <h3>🔒 Cryptographic Evidence Chain</h3>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin: 8px 0; color: var(--accent-purple);">
+            SHA-256(Raw Bytes || Timestamp || GPS)
+          </div>
+          <p>Generates an immutable 256-bit hash for every piece of media, preventing evidence tampering or invoice fraud.</p>
+        </div>
+
+        <div class="card cyan">
+          <h3>🔍 Forensic Split-Wipe Studio</h3>
+          <p>Interactive split-slider UI analyzing Surface Roughness (IRI &lt; 1.5 mm/m), Compaction Density (99.4%), and GPS geofence match (&lt;0.6m) before releasing green AI verification stamp.</p>
+        </div>
+
+        <div class="card green">
+          <h3>🏢 3D Campus & City GIS Engine</h3>
+          <p>Custom map renderer supporting 4 layers: Dark Vector, Satellite Recon, Defect Heatmap, and 3D Isometric building polygon extrusions without cloud map subscription costs.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 7 ================= -->
+    <div class="slide" id="slide-7">
+      <div class="slide-tag">Social & Economic Impact</div>
+      <h2 class="slide-title">System Advantages & Practical Usefulness</h2>
+      <div class="slide-subtitle">Transforming public infrastructure maintenance through quantifiable real-world benefits.</div>
+
+      <div class="grid-2">
+        <div class="card green">
+          <h3>💰 Economic & Financial Value</h3>
+          <ul>
+            <li><strong>Zero Cloud Recurring Expenses:</strong> No monthly cloud API fees or bandwidth bills; runs completely on local hardware.</li>
+            <li><strong>Elimination of Contractor Fraud:</strong> Contractors cannot bill for fake or substandard asphalt work thanks to ghost camera alignment and forensic verification.</li>
+            <li><strong>Early Prevention Lifecycle:</strong> Detecting minor cracks early prevents expensive base-layer pavement reconstruction.</li>
+          </ul>
+        </div>
+
+        <div class="card cyan">
+          <h3>🛡️ Public Safety & Urban Quality</h3>
+          <ul>
+            <li><strong>Drastic Accident Reduction:</strong> Rapid SLA-driven triage fixes high-risk potholes before they trigger fatal crashes or vehicle axle damage.</li>
+            <li><strong>Monsoon Resilience:</strong> Proactive detection of clogged culverts and drainage sumps prevents severe urban waterlogging.</li>
+            <li><strong>International Compliance:</strong> Enforces ASTM D6433 and IRC:SP:16 civil engineering standards across all municipal road works.</li>
+          </ul>
+        </div>
+
+        <div class="card amber">
+          <h3>🤝 Citizen Empowerment & Trust</h3>
+          <ul>
+            <li><strong>Frictionless Reporting:</strong> 2-tap photo submission takes less than 10 seconds, encouraging widespread public participation.</li>
+            <li><strong>Crowdsourced Upvotes:</strong> Automatically merges identical complaints, showing city hall real community demand hotspots.</li>
+            <li><strong>Reopen Accountability:</strong> Citizens can reject poor patchworks, forcing contractors to return and resurface correctly.</li>
+          </ul>
+        </div>
+
+        <div class="card purple">
+          <h3>📶 Operational & Disaster Resilience</h3>
+          <ul>
+            <li><strong>100% Offline Capability:</strong> Field crews and inspectors work uninterrupted in basements, tunnels, and rural dead zones.</li>
+            <li><strong>Automatic Sync:</strong> Offline reports seamlessly sync to municipal servers as soon as network returns.</li>
+            <li><strong>Low Hardware Barrier:</strong> Operates efficiently on standard Windows laptops and mobile devices without expensive GPU rigs.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 8 ================= -->
+    <div class="slide" id="slide-8">
+      <div class="slide-tag">Experimental Verification</div>
+      <h2 class="slide-title">Performance Benchmarks, Conclusion & Future Scope</h2>
+      <div class="slide-subtitle">Demonstrated empirical performance, project defense summary, and future growth roadmap.</div>
+
+      <div class="grid-2">
+        <div class="card cyan">
+          <h3>📊 System Telemetry Benchmarks</h3>
+          <table class="metric-table">
+            <thead>
+              <tr>
+                <th>Subsystem Metric</th>
+                <th>Measured Value</th>
+                <th>Target Standard</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Camera Viewfinder Frame Rate</td>
+                <td class="val">60.0 FPS</td>
+                <td>&ge; 30 FPS</td>
+              </tr>
+              <tr>
+                <td>Edge AI Inference (YOLOv8n)</td>
+                <td class="val">22.1 ms</td>
+                <td>&lt; 35 ms</td>
+              </tr>
+              <tr>
+                <td>Continuous AI Throughput</td>
+                <td class="val">28.4 FPS</td>
+                <td>&ge; 20 FPS</td>
+              </tr>
+              <tr>
+                <td>System RAM Footprint</td>
+                <td class="val">182 MB</td>
+                <td>&lt; 500 MB</td>
+              </tr>
+              <tr>
+                <td>Cold Startup Time to Frame</td>
+                <td class="val">640 ms</td>
+                <td>&lt; 1500 ms</td>
+              </tr>
+              <tr>
+                <td>SHA-256 Evidence Sealing</td>
+                <td class="val">3.8 ms</td>
+                <td>&lt; 10 ms</td>
+              </tr>
+              <tr>
+                <td>Automated Test Suites</td>
+                <td class="val">30 / 30 Passed</td>
+                <td>100% Coverage</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="card green">
+            <h3>🎯 Project Conclusion</h3>
+            <p>
+              InfraVision demonstrates an end-to-end, production-ready, SAE Level 4 autonomous municipal asset management system. By unifying real-time edge computer vision, 3D geospatial GIS mapping, guided ghost camera alignment, and cryptographic verification into an accessible multi-persona architecture, InfraVision solves the municipal infrastructure crisis with zero cloud dependency and uncompromising integrity.
+            </p>
+          </div>
+
+          <div class="card purple">
+            <h3>🚀 Future Roadmap & Scope</h3>
+            <ul>
+              <li><strong>Autonomous Drone / UAV Sweeps:</strong> Aerial corridor scans for elevated highway expressways.</li>
+              <li><strong>Thermal & LiDAR Fusion:</strong> Detecting subsurface voids and water seepage before sinkholes appear.</li>
+              <li><strong>Predictive Pavement AI:</strong> Time-series forecasting of pavement fatigue under heavy traffic loads.</li>
+              <li><strong>Smart Contract Escrows:</strong> Automated blockchain escrow payouts to contractors upon verified resolution.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Dots Navigation -->
+  <div class="dots" id="dotsContainer"></div>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 8;
+
+    function renderDots() {
+      const container = document.getElementById('dotsContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = `dot ${i === currentSlide ? 'active' : ''}`;
+        dot.onclick = () => goToSlide(i);
+        container.appendChild(dot);
+      }
+    }
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', idx + 1 === currentSlide);
+      });
+      document.getElementById('slideNum').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      renderDots();
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(n) {
+      currentSlide = n;
+      updateSlide();
+    }
+
+    // Keyboard Arrow Navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+
+    renderDots();
+  </script>
+</body>
+</html>

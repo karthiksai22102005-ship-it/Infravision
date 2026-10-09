@@ -30,7 +30,7 @@ enum AppTab {
   ),
   campusMap(
     label: 'Campus Map',
-    headerTitle: 'CAMPUS & MUNICIPAL GEOSPATIAL MAP',
+    headerTitle: 'GEOSPATIAL ASSET & ZONE MAP',
     icon: Icons.map_outlined,
     selectedIcon: Icons.map_rounded,
     category: WorkspaceCategory.coreOperations,
@@ -43,6 +43,14 @@ enum AppTab {
     selectedIcon: Icons.assignment_rounded,
     category: WorkspaceCategory.maintenanceWorkflow,
     badgeText: '42 Open',
+  ),
+  issueIntelligence(
+    label: 'Issue Intelligence',
+    headerTitle: 'ISSUE INTELLIGENCE (CORRELATE · IDENTIFY · VERIFY)',
+    icon: Icons.hub_outlined,
+    selectedIcon: Icons.hub_rounded,
+    category: WorkspaceCategory.maintenanceWorkflow,
+    badgeText: 'PI',
   ),
   verification(
     label: 'AI Verification',
