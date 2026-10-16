@@ -1,0 +1,4 @@
+# Decisions
+Approved by owner (2026-10-15): photos optional; nearby = limited public fields, approximate locations; laptop-hosted dev backend + SQL Server, HTTPS later; PDF = original snapshot + versioned PDFs on relevant status changes; keep Citizen tables until Inspector contract is known; preserve 12-screen UI.
+Engineering decisions: (1) PDF engine WeasyPrint instead of ReportLab (Telugu shaping; evidence: rendered comparison). Cost: needs Pango/GTK runtime on Windows. (2) References are random 8-char codes `INV-<year>-XXXXXXXX` generated before insert (portable, no shared placeholder, retry on collision) instead of sequential IDs. (3) Inspector keys are named (`INSPECTOR_KEYS`) as a foundation only. (4) Nearby coordinates rounded to 3 decimals (~110 m); closed complaints hidden.
+Open: Inspector schema/API; supported Android range (proposed API 24+); release signing.

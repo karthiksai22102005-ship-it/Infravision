@@ -1,0 +1,13 @@
+{
+  "source_checkpoint": "best.pt",
+  "onnx_model": "best.onnx",
+  "input_size": [
+    640,
+    640
+  ],
+  "class_names": [
+    "pothole"
+  ],
+  "nms_in_model": false,
+  "note": "Validate preprocessing, output decoding, and NMS in the Flutter app."
+}
